@@ -23,14 +23,14 @@ INSERT INTO "user" (firstName, lastName, email, cultureID, deleted, country, isR
 ('Marko', 'Polo', 'marko@gmail.com', 1033, TRUE, 'UA', TRUE, '2015-07-03'::TIMESTAMP);
 
 -- creating table usergroup
-CREATE TABLE userGroup (
+CREATE TABLE usergroup (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     created TIMESTAMP
 );
 
 -- inserting data into "usergroup"
-INSERT INTO userGroup (name, created) VALUES
+INSERT INTO usergroup (name, created) VALUES
 ('Support', '2010-02-02'::TIMESTAMP),
 ('Dev team', '2010-02-03'::TIMESTAMP),
 ('Apps team', '2011-05-06'::TIMESTAMP),
@@ -41,7 +41,7 @@ INSERT INTO userGroup (name, created) VALUES
 
 
 -- creating table "groupmembership"
-CREATE TABLE groupMembership (
+CREATE TABLE groupmembership (
     id SERIAL PRIMARY KEY,
     userID INT,
     groupID INT,
@@ -49,7 +49,7 @@ CREATE TABLE groupMembership (
 );
 
 -- inserting data into "groupmembership"
-INSERT INTO groupMembership (userID, groupID, created) VALUES
+INSERT INTO groupmembership (userID, groupID, created) VALUES
 (2, 10, '2010-02-02'::TIMESTAMP),
 (3, 15, '2010-02-03'::TIMESTAMP),
 (1, 10, '2014-02-02'::TIMESTAMP),
@@ -60,17 +60,17 @@ INSERT INTO groupMembership (userID, groupID, created) VALUES
 
 -- Selecting names of all empty test groups.
 select name 
-from "group" where name like 'TEST-%' and id not in (select groupID from groupmembership)
+from "usergroup" where name like 'TEST-%' and id not in (select groupID from groupmembership)
 
 -- Selecting user first names and last names for the users that have Victor as a first name and are not members of any test groups.
 SELECT "user".firstName, "user".lastName
 FROM "user"
 WHERE "user".firstName = 'Victor' 
   AND "user".id NOT IN (
-    SELECT groupMembership.userID
-    FROM groupMembership
-    JOIN userGroup ON groupMembership.groupID = userGroup.id
-    WHERE userGroup.name LIKE 'TEST-%'
+    SELECT groupmembership.userID
+    FROM groupmembership
+    JOIN usergroup ON groupmembership.groupID = usergroup.id
+    WHERE usergroup.name LIKE 'TEST-%'
   );
 
 -- Selecting users and groups for which user was created before the group for which he(she) is member of
