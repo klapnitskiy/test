@@ -1,3 +1,5 @@
+
+-- creating new table "user"
 CREATE TABLE "user" (
     id SERIAL PRIMARY KEY,
     firstName VARCHAR(255),
@@ -10,6 +12,7 @@ CREATE TABLE "user" (
     created TIMESTAMP
 );
 
+-- inserting data into table "user"
 INSERT INTO "user" (firstName, lastName, email, cultureID, deleted, country, isRevokeAccess, created) VALUES
 ('Victor', 'Shevchenko', 'vs@gmail.com', 1033, TRUE, 'US', FALSE, '2011-04-05'::TIMESTAMP),
 ('Oleksandr', 'Petrenko', 'op@gmail.com', 1034, FALSE, 'UA', FALSE, '2014-05-01'::TIMESTAMP),
@@ -19,12 +22,14 @@ INSERT INTO "user" (firstName, lastName, email, cultureID, deleted, country, isR
 ('Joe', 'Dou', 'joe@gmail.com', 1032, FALSE, 'US', TRUE, '2009-01-01'::TIMESTAMP),
 ('Marko', 'Polo', 'marko@gmail.com', 1033, TRUE, 'UA', TRUE, '2015-07-03'::TIMESTAMP);
 
+-- creating table usergroup
 CREATE TABLE userGroup (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255),
     created TIMESTAMP
 );
 
+-- inserting data into "usergroup"
 INSERT INTO userGroup (name, created) VALUES
 ('Support', '2010-02-02'::TIMESTAMP),
 ('Dev team', '2010-02-03'::TIMESTAMP),
@@ -34,6 +39,8 @@ INSERT INTO userGroup (name, created) VALUES
 ('TEST-QA-team', '2014-02-02'::TIMESTAMP),
 ('TEST-team', '2011-01-07'::TIMESTAMP);
 
+
+-- creating table "groupmembership"
 CREATE TABLE groupMembership (
     id SERIAL PRIMARY KEY,
     userID INT,
@@ -41,6 +48,7 @@ CREATE TABLE groupMembership (
     created TIMESTAMP
 );
 
+-- inserting data into "groupmembership"
 INSERT INTO groupMembership (userID, groupID, created) VALUES
 (2, 10, '2010-02-02'::TIMESTAMP),
 (3, 15, '2010-02-03'::TIMESTAMP),
@@ -49,12 +57,12 @@ INSERT INTO groupMembership (userID, groupID, created) VALUES
 (4, 12, '2014-07-13'::TIMESTAMP),
 (5, 15, '2014-06-15'::TIMESTAMP);
 
+
+-- Selecting names of all empty test groups.
 select name 
 from "group" where name like 'TEST-%' and id not in (select groupID from groupmembership)
 
-alter table "group"
-rename to "userGroup"
-
+-- Selecting user first names and last names for the users that have Victor as a first name and are not members of any test groups.
 SELECT "user".firstName, "user".lastName
 FROM "user"
 WHERE "user".firstName = 'Victor' 
@@ -65,6 +73,7 @@ WHERE "user".firstName = 'Victor'
     WHERE userGroup.name LIKE 'TEST-%'
   );
 
+-- Selecting users and groups for which user was created before the group for which he(she) is member of
 SELECT "user".id, "user".firstName, "user".lastName, "usergroup".id, "usergroup".name
 FROM "user"
 JOIN groupmembership ON "user".id = groupmembership.userID
