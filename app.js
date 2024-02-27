@@ -1,18 +1,18 @@
-Date.prototype.daysTo = daysTo;
-
 //JS
+
+//Object projection refactor and calendar api access key
 
 //Task 1.1
 // 1.1.	Extend JS Date object with a method daysTo() which returns number of complete days between any pair of JS date objects: d1.daysTo(d2) should return quantity of complete days from d1 to d2.
+
+Date.prototype.daysTo = daysTo;
 
 function daysTo(secondDay) {
   const differenceTime = this - secondDay;
   const differenceDays = Math.floor(
     Math.abs(differenceTime) / (1000 * 3600 * 24)
   );
-  console.log(
-    `Complete days between ${this} and ${secondDay} is ${differenceDays} days`
-  );
+
   return differenceDays;
 }
 
@@ -20,6 +20,7 @@ const d1 = new Date();
 const d2 = new Date("18 February 2024 11:33");
 
 const diff = d1.daysTo(d2);
+console.log(`Complete days between ${d1} and ${d2} is ${diff} days`);
 
 //Task 1.2
 // 1.2.	Please order by Total
@@ -33,52 +34,112 @@ const array = [
   { amount: 3000, quantity: 7 },
 ];
 
-function orderByTotal(array) {
-  console.log(array, "original");
-
+function orderByTotal(array, bigtoSmall = true) {
   //i'm gonna do a shallow copy reffering to given example
-  const arrayCopy = array.map((item) => {
-    return { ...item };
-  });
+  const arrayCopy = array.map((item) => ({
+    ...item,
+    Total: item.amount * item.quantity,
+  }));
 
-  arrayCopy.forEach((item) => {
-    item.total = item.amount * item.quantity;
-  });
+  //deep copy
+  const arrayJSONCopy = JSON.parse(JSON.stringify(array));
 
-  arrayCopy.sort((a, b) => b.total - a.total);
+  // arrayCopy.forEach((item) => {
+  //   item.total = item.amount * item.quantity;
+  // });
+
+  if (bigtoSmall) {
+    arrayCopy.sort((a, b) => b.total - a.total);
+  } else {
+    arrayCopy.sort((a, b) => a.total - b.total);
+  }
 
   return arrayCopy;
 }
 
 const orderedArray = orderByTotal(array);
+
+const orederToSmall = orderByTotal(array, false);
+
+console.log(array, "original");
+
 console.log(orderedArray, "orderedArray");
+
+console.log(orederToSmall, "orederToSmall");
+
+console.log(array);
 
 // Task 1.3
 // 1.3.	Develop a program “Object Projection”. Input: any JSON object; prototype object. Output: projected object. Projected object structure shall be intersection of source object and prototype object structures. Values of properties in projected object shall be the same as values of respective properties in source object.
+// const src = {
+//   prop11: {
+//     prop21: 21,
+//     prop22: {
+//       prop31: new Date(),
+//       prop32: 32,
+//       prop33: {
+//         test: "lol",
+//       },
+//     },
+//   },
+//   prop12: 12,
+// };
+
+// const proto = {
+//   prop11: {
+//     prop22: null,
+//   },
+//   prop12: null,
+// };
+
 const src = {
+  prop22: null, //prop22
+  prop33: {
+    prop331: 1, //prop33.prop331
+    prop332: 2, //prop33.prop332
+  },
   prop11: {
-    prop21: 21,
-    prop22: {
-      prop31: new Date(),
-      prop32: 32,
+    prop111: "value", //prop11.prop111
+    prop112: {
+      prop112: null, //prop11.prop112.prop112
     },
   },
-  prop12: 12,
 };
 
 const proto = {
   prop11: {
-    prop22: undefined,
+    prop22: null, //prop11.prop22
+    prop111: {
+      prop111: null, //prop11.prop111.prop111
+    },
+    prop112: null, //prop11.prop112
+  },
+  prop33: {}, //prop33
+  prop22: 2, //prop22
+};
+
+const result = {
+  prop11: {
+    prop112: {
+      prop112: null,
+    },
+  },
+  prop22: null,
+  prop33: {
+    prop331: 1,
+    prop332: 2,
   },
 };
 
 function objectProjection(sourceObj, prototypeObj) {
   function deepClone(source, prototype) {
+    console.log(source, "SRC", prototype, "PROTO");
     if (
       source === null ||
       prototype === null ||
       typeof source !== "object" ||
-      typeof prototype !== "object"
+      typeof prototype !== "object" ||
+      Object.keys(prototype).length === 0
     ) {
       return source;
     }
@@ -89,6 +150,12 @@ function objectProjection(sourceObj, prototypeObj) {
         typeof prototype[key] === "object"
       ) {
         projectedObj[key] = deepClone(source[key], prototype[key]);
+      } else if (
+        prototype[key] !== source[key] &&
+        prototype[key] !== undefined &&
+        source[key] !== null
+      ) {
+        return projectedObj;
       } else {
         projectedObj[key] = source[key];
       }

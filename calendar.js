@@ -37,14 +37,16 @@ app.get("/redirect", (req, res) => {
 });
 
 app.post("/freebusy", express.json(), (req, res) => {
-  console.log(req.body, "REQUEST BODY");
-
+  console.log(req.body.calendar);
   const calendarId = req.body.calendar || "primary";
 
-  const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+  const calendar = google.calendar({
+    version: "v3",
+    auth: process.env.GOOGLE_API_KEY,
+  });
 
-  const timeMin = new Date().toISOString();
-  const timeMax = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const timeMin = new Date("12 February 2024").toISOString();
+  const timeMax = new Date("14 February 2024").toISOString();
 
   calendar.freebusy.query(
     {
